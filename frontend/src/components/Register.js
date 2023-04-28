@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import registerImg from "../img/register.jpg";
 import {Link} from 'react-router-dom';
+import axios from '../api/axios';
 
 
 const USERNAME_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
@@ -50,9 +51,29 @@ const Register = () => {
         }
 
         try{
+            await axios.post(
+                REGISTER_URL,
+                JSON.stringify({username ,password}),
+                {
+                    headers : {"Content-Type": "application/json"},
+                    withCredentials : true
+                }
+            )
+
+            setSuccess(true);
+            setUsername("");
+            setPassword("");
+            SetMatchPsw("");
 
         }catch(err){
-            
+            if(!err?.response){
+                setErrorMsg("No error recieved from server")
+            } else if(err.response?.status === 409){
+                setErrorMsg("this username is already used.")
+            } else {
+                setErrorMsg("error happened during registration")
+            }
+
         }
     }
 
