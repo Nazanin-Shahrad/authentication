@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import registerImg from "../img/register.jpg";
+import successImg from "../img/success.png";
 import {Link} from 'react-router-dom';
-import axios from '../api/axios';
+import axiosRequest from '../api/axios';
 
 
 const USERNAME_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = "/register";
+const REGISTER_URL = "/auth/register";
 
 const Register = () => {
     const usernameRef = useRef();
@@ -30,7 +31,8 @@ const Register = () => {
     } ,[])
 
     useEffect(() => {
-        setIsValidUn(USERNAME_REGEX.test(username))
+        setIsValidUn(USERNAME_REGEX.test(username));
+        
     } ,[username]);
 
     useEffect(() => {
@@ -38,34 +40,78 @@ const Register = () => {
         setIsMatchPsw(password === matchPsw);
     } ,[password , matchPsw]);
 
-    useEffect(() => {
-        setErrorMsg("");
-    } ,[username , password]);
+    // useEffect(() => {
+    //     setErrorMsg("");
+    // } ,[username , password]);
+
+   
+
+    // const handleSubmit = async (e) => {
+    //     e.prevetDefault();
+    //     console.log("hello")
+    //     const usernameValidation = USERNAME_REGEX.test(username);
+    //     const passwordValidation = PWD_REGEX.test(password);
+    //     if(!usernameValidation || !passwordValidation){
+    //         setErrorMsg("Please fill out the form");
+    //     }
+
+    //     try{
+    //         await axiosRequest.post(
+    //             REGISTER_URL,
+    //             JSON.stringify({username:username , password:password}),
+    //             {
+    //                 headers : {"Content-Type": "application/json"},
+    //                 withCredentials : true
+    //             }
+    //         )
+    //         console.log("errooooorrrr::::",setErrorMsg);
+    //         setSuccess(true);
+    //         setUsername("");
+    //         setPassword("");
+    //         SetMatchPsw("");
+
+    //     }catch(err){
+    //         // console.log(err.message);
+    //         // if(!err?.response){
+    //         //     setErrorMsg("No error recieved from server")
+    //         // } else if(err.response?.status === 409){
+    //         //     setErrorMsg("this username is already used.")
+    //         // } else {
+    //         //     setErrorMsg("error happened during registration")
+    //         // }
+    //         console.log(err);
+
+    //     }
+    // }
 
     const handleSubmit = async (e) => {
-        e.prevetDefault();
-        const usernameValidation = USERNAME_REGEX .test(username);
-        const passwordValidation = PWD_REGEX.test(password);
-        if(!usernameValidation || !passwordValidation){
-            setErrorMsg("Please fill out the form");
-        }
-
-        try{
-            await axios.post(
-                REGISTER_URL,
-                JSON.stringify({username ,password}),
-                {
-                    headers : {"Content-Type": "application/json"},
-                    withCredentials : true
-                }
-            )
-
-            setSuccess(true);
-            setUsername("");
-            setPassword("");
-            SetMatchPsw("");
-
-        }catch(err){
+        e.preventDefault();
+        console.log("hello")
+            const usernameValidation = USERNAME_REGEX.test(username);
+            const passwordValidation = PWD_REGEX.test(password);
+            if(!usernameValidation || !passwordValidation){
+                setErrorMsg("Please fill out the form");
+            }
+    
+       
+        try {
+            await axiosRequest.post(
+                            REGISTER_URL,
+                            JSON.stringify({username:username , password:password}),
+                            {
+                                headers : {"Content-Type": "application/json"},
+                                withCredentials : true
+                            }
+                        )
+                        // console.log("errooooorrrr::::",setErrorMsg);
+                        setSuccess(true);
+                        setUsername("");
+                        setPassword("");
+                        SetMatchPsw("");
+         
+        } catch (err) {
+          console.log(err);
+          console.log(err.message);
             if(!err?.response){
                 setErrorMsg("No error recieved from server")
             } else if(err.response?.status === 409){
@@ -73,12 +119,22 @@ const Register = () => {
             } else {
                 setErrorMsg("error happened during registration")
             }
-
+            console.log(err);
         }
-    }
+      };
 
   return (
-    <section>
+  <>
+  {success ? (
+  <section className='h-screen w-full flex justify-center items-center bgBlueGradient'>
+    <div className='flex flex-col m-4 justify-center space-y-6 items-center bg-white shadow-sm rounded-md overflow-hidden px-4 pb-14'>
+        <img className='h-72 object-contain' src={successImg} alt="" />
+        <h1 className='text-[#4AACF3] text-lg sm:text-2xl font-black p-3'>Registered Successfully</h1>
+        <Link className='bg-yellow-200 w-52 rounded-md text-gray-800 font-semibold text-center hover:bg-yellow-300 transition-all p-3 inline-block' to="/login">Login to website</Link>
+    </div>
+  </section>
+  ) : ( 
+     <section>
         <div className='h-screen w-full flex justify-center items-center bgBlueGradient '>
             <div className='m-3 md:m-0 flex-col p-4 bg-white justify-start items-center w-[400px] rounded-md rounded-md overflow-hidden'>
             {/* <div className='bg-white'> */}
@@ -89,7 +145,7 @@ const Register = () => {
                     </div>
                 </div>
 
-                <form className='flex flex-col space-y-6 justufy-center items-center w-full p-4 my-3'>
+                <form onSubmit={handleSubmit} className='flex flex-col space-y-6 justufy-center items-center w-full p-4 my-3'>
                 {/* <form> */}
                     {errorMsg &&
 
@@ -127,6 +183,10 @@ const Register = () => {
            
         </div>
     </section>
+    
+    )}
+  
+  </>
   )
 }
 

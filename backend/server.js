@@ -2,6 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRoute from './routes/authRoute.js';
+import cors from 'cors';
+import {corsOptions} from './config/corsOptions.js';
+import { credentials } from './middleware/credential.js';
 
 
 const app = express();
@@ -9,6 +12,9 @@ dotenv.config();
 
 //middleware
 app.use(express.json());
+//put credential before corsOption 
+app.use(credentials);
+app.use(cors(corsOptions));
 
 app.use("/api/auth" ,authRoute);
 

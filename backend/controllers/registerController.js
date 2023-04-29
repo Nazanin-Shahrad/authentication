@@ -2,7 +2,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 
 
- const register = async (req, res ) => {
+ export const register = async (req, res ) => {
     const { username , password} = req.body;
     //password or username was empty and user didn't find out the form -->caused bad request
     if(!username || !password){
@@ -28,6 +28,6 @@ import bcrypt from 'bcrypt';
     }
 }
 
-export default registerController
+
 
 

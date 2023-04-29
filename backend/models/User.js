@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     username : {
         type:String,
-        required,
+        required: true,
     },
     roles: {
         User:{type:Number , default:1000},
@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type:String,
-        required,
+        required: true,
     },
     refreshToken:[String]
 });
