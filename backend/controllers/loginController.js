@@ -37,7 +37,7 @@ import jwt from 'jsonwebtoken';
     const newRefreshToken = jwt.sign(
         {
             username : foundUser.username,
-        },process.env.REFRESH_TOKEN_SECRET, {expiresIn : "1d"}
+        },process.env.REFRESH_TOKEN_SECRECT, {expiresIn : "1d"}
     );
 
     let newRefreshTokenArray = !cookies?.jwt ? foundUser.refreshToken : foundUser.refreshToken.filter((rt) => rt !== cookies.jwt)
