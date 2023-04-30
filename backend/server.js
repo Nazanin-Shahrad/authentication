@@ -5,6 +5,7 @@ import authRoute from './routes/authRoute.js';
 import cors from 'cors';
 import {corsOptions} from './config/corsOptions.js';
 import { credentials } from './middleware/credential.js';
+import cookieParser from 'cookie-parser';
 
 
 const app = express();
@@ -12,11 +13,13 @@ dotenv.config();
 
 //middleware
 app.use(express.json());
+app.use(cookieParser());
 //put credential before corsOption 
 app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use("/api/auth" ,authRoute);
+
 
 
 // const connectDB= async () => {
