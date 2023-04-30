@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 
- export const register = async (req, res ) => {
+export const register = async (req, res ) => {
     const { username , password} = req.body;
     //password or username was empty and user didn't find out the form -->caused bad request
     if(!username || !password){
@@ -30,8 +30,14 @@ import jwt from 'jsonwebtoken';
 }
 
 
- export const login = async (req, res)=> {
+
+
+
+
+export const login = async (req, res)=> {
     const cookies = req.cookies;
+
+    console.log("cookiessss az front oomade:::",cookies);
 
     const {username , password } = req.body;
 
@@ -40,6 +46,9 @@ import jwt from 'jsonwebtoken';
     }
 
     const foundUser = await User.findOne({username:username}).exec();
+    console.log(foundUser);
+
+
 
     if(!foundUser){
         return res.status(401).json({message:"user not found"})
@@ -52,6 +61,8 @@ import jwt from 'jsonwebtoken';
     }
 
     const roles = Object.values(foundUser.roles).filter(Boolean)
+    console.log("roles",roles)
+    // res.status(200).send("success")
 
     const accessToken = jwt.sign(
         {
@@ -60,27 +71,48 @@ import jwt from 'jsonwebtoken';
          process.env.ACCESS_TOKEN,
          {expiresIn : "5m"}
     )
+    console.log("accesstoken:::::",accessToken);
 
     const newRefreshToken = jwt.sign(
         {
             username : foundUser.username,
-        },process.env.REFRESH_TOKEN, {expiresIn : "1d"}
+        },
+        process.env.REFRESH_TOKEN,
+        {expiresIn : "1d"}
     );
+
+    console.log("NEW refresh Token ::::::::",newRefreshToken);
+    console.log("cookie jwt:?;?:?:" , cookies?.jwt);
+
+    console.log("foundUser.refreshtoken::???", foundUser.refreshToken)
 
     let newRefreshTokenArray = !cookies?.jwt ? foundUser.refreshToken : foundUser.refreshToken.filter((rt) => rt !== cookies.jwt)
 
-    if(cookies?.jwt){
-        const refreshToken = cookies.jwt;
-        const foundToken = await User.findOne({refreshToken}).exec();
+    console.log("new reftesh token arayyyyyyyyy:::" , newRefreshTokenArray)
 
-        if(!foundToken){
-            newRefreshTokenArray=[]
-        }
-        res.clearCookie("jwt" , {httpOnly:true , sameSite: "None" , secure : true})
+    if(cookies?.jwt){
+       console.log("NAZANIN",cookies.jwt)
+   
+        const refreshToken = cookies.jwt;
+      
+        const foundToken = await User.findOne({refreshToken}).exec();
+        // console.log("HAME USERS HAA::", users)
+        // const refreshTokens = users[0].refreshToken;
+        console.log("foundToken",foundToken)
+
+        // console.log("refresh haye too db :" , refreshTokens)
+        
+        // console.log("found token for this user:::" , foundToken)
+
+        // if(!foundToken){
+        //     newRefreshTokenArray=[]
+        // }
+        // res.clearCookie("jwt" , {httpOnly:true , sameSite: "None" , secure : true})
     }
 
     foundUser.refreshToken = [...newRefreshTokenArray , newRefreshToken]
     await foundUser.save();
+    console.log("found user jadid :::" , foundUser)
 
     res.cookie("jwt" , { httpOnly: true , sameSite : "None"  , secure:true , maxAge: 1000 * 60 * 60 * 24});
     res.json({roles , accessToken});
